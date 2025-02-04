@@ -1,5 +1,5 @@
 # This is a sample Python script.
-from nltk_m import NLTKMethod
+from nltk_analyzer.nltk_m import NLTKMethod
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 

@@ -1,8 +1,7 @@
 import nltk
 from nltk import word_tokenize
-from nltk.corpus.reader import opinion_lexicon
-from nltk.corpus.reader import WordListCorpusReader
-from nltk.decorators import new_wrapper
+from nl
+
 
 nltk.download('punkt')
 nltk.download('opinion_lexicon')
@@ -12,7 +11,6 @@ class NLTKMethod:
     def __init__(self, text: str):
         self._text = text
         self._op_lex = opinion_lexicon.OpinionLexiconCorpusReader(root="", fileids=None)
-
 
 
     def analyze_sentiment(self):
