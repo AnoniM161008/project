@@ -1,41 +1,72 @@
 import nltk
 from nltk import word_tokenize
-from nl
+from nltk.corpus import opinion_lexicon
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from vader_multi import vaderMulti
 
-
+# Загрузка необходимых ресурсов NLTK
 nltk.download('punkt')
+nltk.download('punkt_tab')
 nltk.download('opinion_lexicon')
 
 
 class NLTKMethod:
-    def __init__(self, text: str):
-        self._text = text
-        self._op_lex = opinion_lexicon.OpinionLexiconCorpusReader(root="", fileids=None)
+    def __init__(self):
+        self._positive_words = set(opinion_lexicon.positive())
+        self._negative_words = set(opinion_lexicon.negative())
+        # Инициализация анализаторов VADER
+        self.vader_analyzer = SentimentIntensityAnalyzer()
+        self.multi_analyzer = vaderMulti()
 
+    def analyze_sentiment_nltk(self, text: str):
+        text = text.lower()
+        words = word_tokenize(text)
 
-    def analyze_sentiment(self):
-        lower_text = self._text.lower()
-        words = word_tokenize(text=lower_text, language="russian")
+        positive_count = sum(1 for word in words if word in self._positive_words)
+        negative_count = sum(1 for word in words if word in self._negative_words)
 
-        self._op_lex.words(fileids=words)
-        positive_words = self._op_lex.positive()
-        negative_words = self._op_lex.negative()
-
-
-        positive_count = sum(1 for word in words if word in positive_words)
-        negative_count = sum(1 for word in words if word in negative_words)
         if positive_count > negative_count:
             sentiment = "Положительный"
         elif negative_count > positive_count:
             sentiment = "Отрицательный"
         else:
             sentiment = "Нейтральный"
-        print(f"Отзыв - {sentiment}")
+
+        print(f"NLTK Отзыв - {sentiment}")
         return sentiment
 
-text = input("Введите отзыв: ")
-nltk_me = NLTKMethod(text)
+    def analyze_sentiment_vader(self, text: str):
+        # Анализ с использованием VADER
+        vader_score = self.vader_analyzer.polarity_scores(text)
+        if vader_score['compound'] >= 0.05:
+            sentiment = "Положительный"
+        elif vader_score['compound'] <= -0.05:
+            sentiment = "Отрицательный"
+        else:
+            sentiment = "Нейтральный"
+
+        print(f"VADER Отзыв - {sentiment} (Оценка: {vader_score})")
+        return sentiment
+
+    def analyze_sentiment_vader_multi(self, text: str):
+        # Анализ с использованием vader-multi
+        multi_score = self.multi_analyzer.polarity_scores(text)
+        if multi_score['compound'] >= 0.05:
+            sentiment = "Положительный"
+        elif multi_score['compound'] <= -0.05:
+            sentiment = "Отрицательный"
+        else:
+            sentiment = "Нейтральный"
+
+        print(f"VADER Multi Отзыв - {sentiment} (Оценка: {multi_score})")
+        return sentiment
+
+
+nltk_me = NLTKMethod()
 try:
-    print(nltk_me.analyze_sentiment())
+    text = input('Введите текст: ')
+    nltk_me.analyze_sentiment_nltk(text)
+    nltk_me.analyze_sentiment_vader(text)
+    nltk_me.analyze_sentiment_vader_multi(text)
 except ValueError as e:
     raise ValueError()
