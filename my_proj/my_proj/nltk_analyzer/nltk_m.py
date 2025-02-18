@@ -2,12 +2,10 @@ import nltk
 from razdel import tokenize
 from nltk.corpus import opinion_lexicon
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from rusentiment import RuSentiment
 
 nltk.download('punkt')
 nltk.download('punkt_tab')
 nltk.download('opinion_lexicon')
-rusentiment = RuSentiment()
 class NLTKMethod:
     def __init__(self):
         self._positive_words = set(opinion_lexicon.positive())
@@ -43,20 +41,6 @@ class NLTKMethod:
 
         print(f"VADER Отзыв - {sentiment} (Оценка: {vader_score})")
         return sentiment
-
-    def analyze_sentiment_rusentiment(text: str):
-        result = rusentiment.predict(text)
-        if result == "positive":
-            return "Положительный"
-        elif result == "negative":
-            return "Отрицательный"
-        else:
-            return "Нейтральный"
-
-        sentiment = analyze_sentiment_rusentiment(text)
-        print(f"Текст: {text}")
-        print(f"Тональность: {sentiment}")
-        print("-" * 30)
 
 nltk_me = NLTKMethod()
 try:
