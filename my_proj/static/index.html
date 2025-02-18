@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sentiment Analysis</h1>
+        <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+        <button onclick="analyzeSentiment()">Analyze</button>
+        <div id="result">
+            <h2>Results:</h2>
+            <p><strong>NLTK Sentiment:</strong> <span id="nltkResult">-</span></p>
+            <p><strong>VADER Sentiment:</strong> <span id="vaderResult">-</span></p>
+            <p><strong>VADER Score:</strong> <span id="vaderScore">-</span></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
