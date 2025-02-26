@@ -20,6 +20,7 @@ async function analyzeSentiment() {
         }
 
         const data = await response.json();
+        console.log(data);  // Проверьте, что возвращает сервер
 
         // Обновляем результаты на странице
         document.getElementById('nltkResult').innerText = data.nltk_sentiment;

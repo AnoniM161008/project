@@ -1,29 +1,47 @@
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-import nltk
+from fastapi.middleware.cors import CORSMiddleware
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from razdel import tokenize
 from nltk.corpus import opinion_lexicon
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import nltk
+import os
+
+# Загрузка необходимых ресурсов NLTK
+nltk.download('opinion_lexicon')
+
+# Создание экземпляра FastAPI
 app = FastAPI()
+
+# Настройка CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешить все домены (для разработки)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Модель для входных данных
 class TextInput(BaseModel):
     text: str
 
+# Полный путь к папке statics
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "statics")
+
 # Подключение статических файлов
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/statics", StaticFiles(directory=STATIC_DIR), name="statics")
 
-# Маршрут для анализа тональности
-@app.post("/analyze/")
-async def analyze_sentiment(text_input: TextInput):
-    text = text_input.text
+# Инициализация анализатора VADER
+vader_analyzer = SentimentIntensityAnalyzer()
 
-    # Здесь ваш код для анализа тональности
-    # Например:
+# Инициализация NLTK
+class NLTKMethod:
+    def __init__(self):
+        self._positive_words = set(opinion_lexicon.positive())
+        self._negative_words = set(opinion_lexicon.negative())
+
     def analyze_sentiment_nltk(self, text: str):
         text = text.lower()
         words = [token.text for token in tokenize(text)]
@@ -40,20 +58,25 @@ async def analyze_sentiment(text_input: TextInput):
 
         return sentiment
 
-    # Замените на реальный анализ
-    def analyze_sentiment_vader(self, text: str):
-        vader_score = self.vader_analyzer.polarity_scores(text)
-        if vader_score['compound'] >= 0.05:
-            sentiment = "Положительный"
-        elif vader_score['compound'] <= -0.05:
-            sentiment = "Отрицательный"
-        else:
-            sentiment = "Нейтральный"
+# Инициализация NLTK анализатора
+nltk_me = NLTKMethod()
 
-        return sentiment, vader_score
+# Маршрут для анализа тональности
+@app.post("/analyze/")
+async def analyze_sentiment(text_input: TextInput):
+    text = text_input.text
 
-    # Замените на реальный анализ
-    vader_score = {"neg": 0.1, "neu": 0.8, "pos": 0.1, "compound": 0.0}  # Замените на реальный анализ
+    # Анализ тональности с использованием NLTK
+    nltk_sentiment = nltk_me.analyze_sentiment_nltk(text)
+
+    # Анализ тональности с использованием VADER
+    vader_score = vader_analyzer.polarity_scores(text)
+    if vader_score['compound'] >= 0.05:
+        vader_sentiment = "Положительный"
+    elif vader_score['compound'] <= -0.05:
+        vader_sentiment = "Отрицательный"
+    else:
+        vader_sentiment = "Нейтральный"
 
     return {
         "nltk_sentiment": nltk_sentiment,
