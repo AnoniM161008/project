@@ -1,85 +1,47 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from razdel import tokenize
-from nltk.corpus import opinion_lexicon
-import nltk
-import os
+from pydantic import BaseModel
+from textblob import TextBlob
 
-# Загрузка необходимых ресурсов NLTK
-nltk.download('opinion_lexicon')
-
-# Создание экземпляра FastAPI
-app = FastAPI()
-
-# Настройка CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Разрешить все домены (для разработки)
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+app = FastAPI(
+    title="Sentiment Analysis API",
+    description="API для анализа тональности текста",
+    version="1.0"
 )
 
-# Модель для входных данных
-class TextInput(BaseModel):
+# Разрешаем CORS (для запросов из браузера)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000","http://127.0.0.1:3000"],  # В продакшене укажите конкретный домен фронтенда!
+    allow_methods=["POST"],
+    allow_headers=["application/json; charset=utf-8"],
+)
+
+
+class TextRequest(BaseModel):
     text: str
 
-# Полный путь к папке statics
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "statics")
 
-# Подключение статических файлов
-app.mount("/statics", StaticFiles(directory=STATIC_DIR), name="statics")
+@app.post("/analyze")
+async def analyze_sentiment(request: TextRequest):
+    if not request.text:
+        raise HTTPException(status_code=400, detail="Текст не может быть пустым")
 
-# Инициализация анализатора VADER
-vader_analyzer = SentimentIntensityAnalyzer()
+    analysis = TextBlob(request.text)
+    polarity = analysis.sentiment.polarity
 
-# Инициализация NLTK
-class NLTKMethod:
-    def __init__(self):
-        self._positive_words = set(opinion_lexicon.positive())
-        self._negative_words = set(opinion_lexicon.negative())
-
-    def analyze_sentiment_nltk(self, text: str):
-        text = text.lower()
-        words = [token.text for token in tokenize(text)]
-
-        positive_count = sum(1 for word in words if word in self._positive_words)
-        negative_count = sum(1 for word in words if word in self._negative_words)
-
-        if positive_count > negative_count:
-            sentiment = "Положительный"
-        elif negative_count > positive_count:
-            sentiment = "Отрицательный"
-        else:
-            sentiment = "Нейтральный"
-
-        return sentiment
-
-# Инициализация NLTK анализатора
-nltk_me = NLTKMethod()
-
-# Маршрут для анализа тональности
-@app.post("/analyze/")
-async def analyze_sentiment(text_input: TextInput):
-    text = text_input.text
-
-    # Анализ тональности с использованием NLTK
-    nltk_sentiment = nltk_me.analyze_sentiment_nltk(text)
-
-    # Анализ тональности с использованием VADER
-    vader_score = vader_analyzer.polarity_scores(text)
-    if vader_score['compound'] >= 0.05:
-        vader_sentiment = "Положительный"
-    elif vader_score['compound'] <= -0.05:
-        vader_sentiment = "Отрицательный"
+    if polarity > 0.1:
+        sentiment = "Позитивный"
+        color = "#28a745"
+    elif polarity < -0.1:
+        sentiment = "Негативный"
+        color = "#dc3545"
     else:
-        vader_sentiment = "Нейтральный"
+        sentiment = "Нейтральный"
+        color = "#6c757d"
 
     return {
-        "nltk_sentiment": nltk_sentiment,
-        "vader_sentiment": vader_sentiment,
-        "vader_score": vader_score
+        "sentiment": sentiment,
+        "polarity": round(polarity, 2),
+        "color": color
     }
