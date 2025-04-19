@@ -1,15 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Анализатор тональности</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анализатор тональности текста</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Анализатор тональности</h1>
-        <textarea id="textInput" placeholder="Введите текст..."></textarea>
+        <h1>Анализатор тональности текста</h1>
+        <textarea id="textInput" placeholder="Введите текст для анализа..."></textarea>
         <button id="analyzeButton">Анализировать</button>
-        <div id="result" class="result"></div>
+        <div id="result" class="result">
+            <h2>Результат:</h2>
+            <p id="sentiment"></p>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>

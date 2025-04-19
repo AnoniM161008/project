@@ -1,23 +1,51 @@
-document.getElementById('analyzeButton').addEventListener('click', async () => {
+document.getElementById('analyzeButton').addEventListener('click', function() {
     const text = document.getElementById('textInput').value;
-
-    try {
-        const response = await fetch('http://localhost:3000/analyze', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json; charset' +
-                    '=utf-8',
-            },
-            body: JSON.stringify({ text: text })
-        });
-
-        const data = await response.json();
-        document.getElementById('result').innerHTML =
-            <h2>Результат:</h2>
-            <p>Тональность: <span style="color: ${data.polarity > 0 ? 'green' : 'red'}">${data.sentiment}</span></p>
-        ;
-    } catch (error) {
-        console.error("Ошибка:", error);
-        alert("Не удалось проанализировать текст");
-    }
+    const sentiment = analyzeSentiment(text);
+    displayResult(sentiment);
 });
+
+function analyzeSentiment(text) {
+    // Пример простого анализа тональности
+    const positiveWords = ['хорошо', 'отлично', 'прекрасно', 'счастье', 'радость'];
+    const negativeWords = ['плохо', 'ужасно', 'грусть', 'несчастье', 'зло'];
+
+    let positiveCount = 0;
+    let negativeCount = 0;
+
+    positiveWords.forEach(word => {
+        if (text.toLowerCase().includes(word)) {
+            positiveCount++;
+        }
+    });
+
+    negativeWords.forEach(word => {
+        if (text.toLowerCase().includes(word)) {
+            negativeCount++;
+        }
+    });
+
+    if (positiveCount > negativeCount) {
+        return 'Позитивный';
+    } else if (negativeCount > positiveCount) {
+        return 'Негативный';
+    } else {
+        return 'Нейтральный';
+    }
+}
+
+function displayResult(sentiment) {
+    const resultElement = document.getElementById('sentiment');
+    resultElement.textContent = sentiment;
+
+    const resultContainer = document.getElementById('result');
+    resultContainer.style.display = 'block';
+
+    // Изменение цвета в зависимости от результата
+    if (sentiment === 'Позитивный') {
+        resultElement.style.color = '#28a745';
+    } else if (sentiment === 'Негативный') {
+        resultElement.style.color = '#dc3545';
+    } else {
+        resultElement.style.color = '#6c757d';
+    }
+}
