@@ -1,11 +1,12 @@
 import sys
 import io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from textblob import TextBlob
+from src.api.router import router as nltk_router
 
 app = FastAPI(
     title="Sentiment Analysis API",
@@ -22,30 +23,33 @@ app.add_middleware(
 )
 
 
-class TextRequest(BaseModel):
-    text: str
+# class TextRequest(BaseModel):
+#     text: str
 
 
-@app.post("/analyze")
-async def analyze_sentiment(request: TextRequest):
-    if not request.text:
-        raise HTTPException(status_code=400, detail="Текст не может быть пустым")
+# @app.post("/analyze")
+# async def analyze_sentiment(request: TextRequest):
+#     if not request.text:
+#         raise HTTPException(status_code=400, detail="Текст не может быть пустым")
+#
+#     analysis = TextBlob(request.text)
+#     polarity = analysis.sentiment.polarity
+#
+#     if polarity > 0.1:
+#         sentiment = "Позитивный"
+#         color = "#28a745"
+#     elif polarity < -0.1:
+#         sentiment = "Негативный"
+#         color = "#dc3545"
+#     else:
+#         sentiment = "Нейтральный"
+#         color = "#6c757d"
+#
+#     return {
+#         "sentiment": sentiment,
+#         "polarity": round(polarity, 2),
+#         "color": color
+#     }
 
-    analysis = TextBlob(request.text)
-    polarity = analysis.sentiment.polarity
-
-    if polarity > 0.1:
-        sentiment = "Позитивный"
-        color = "#28a745"
-    elif polarity < -0.1:
-        sentiment = "Негативный"
-        color = "#dc3545"
-    else:
-        sentiment = "Нейтральный"
-        color = "#6c757d"
-
-    return {
-        "sentiment": sentiment,
-        "polarity": round(polarity, 2),
-        "color": color
-    }
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

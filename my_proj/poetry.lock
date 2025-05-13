@@ -360,6 +360,18 @@ pydantic2 = ["pydantic-settings"]
 yaml = ["pyyaml"]
 
 [[package]]
+name = "dishka"
+version = "1.5.3"
+description = "Cute DI framework with scopes and agreeable API"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "dishka-1.5.3-py3-none-any.whl", hash = "sha256:838f2c21ad2f39424e326e836fb9dbef127d8e418593b9e9d5187c14479cd079"},
+    {file = "dishka-1.5.3.tar.gz", hash = "sha256:d40c0d879f6662e66de0c72458081fbcbdb55fee5823ca5820b714bc1c690c29"},
+]
+
+[[package]]
 name = "fastapi"
 version = "0.115.6"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
@@ -1425,4 +1437,4 @@ requests = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "8ab3ecdfd529e6e20e2d652442d741bc8256373ffb4b939da29d74a5c578cf85"
+content-hash = "77d7529665963e386e3643ba1e4f1a6e3d6c2a2e8d517a066fd7fe250c8c1690"

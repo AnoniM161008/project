@@ -23,6 +23,7 @@ dependencies = [
     "rusentiment (>=0.0.3,<0.0.4)",
     "vader (>=0.0.3,<0.0.4)",
     "textblob (>=0.19.0,<0.20.0)",
+    "dishka (>=1.5.3,<2.0.0)",
 ]
 
 
